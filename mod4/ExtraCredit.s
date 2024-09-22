@@ -10,24 +10,19 @@ main:
 
     ldr r0, =prompt
     bl printf
-    
 
     // setp pair for float to be stored in 
     LDR r0, =fmt_in
     LDR r1, =num
     BL scanf
 
-    //LDR r1, =num
-    //LDR r1, [r1, #0]
+    LDR r1, =num // Load the adr of num into r1
+   
+    VLDR s0, [r1] // Load the valuer of num into s0
+    vcvt.f64.f32  d5, s0    // Convert num to double 
 
-  
-    // ldr r3, =num // used to test by hardcoding a float into num and just printing
-    VLDR.32 s15, =num
-    VCVT.f64.f32 d7, s15
-
-    ldr r0, =fmt_out
-    VMOV r1, r2, d7 
-    LDR r1, [r1, #0]
+    LDR r0, =fmt_out
+    VMOV r2, r3, d5 // Store num into r2 and r3 (not sure why r1 and r2 didnt work?)
     BL printf
 
     LDR lr, [sp, #0]
