@@ -1,12 +1,12 @@
 .text
 .global main
 main:
-    # Save return to OS on stack 
-    SUB sp, sp, #8
+    // Save return to OS on stack 
+    SUB sp, sp, #4
     STR lr, [sp, #0]
     
     
-    # Enter your program here.
+    // Enter your program here.
 
     ldr r0, =prompt
     bl printf
@@ -17,22 +17,24 @@ main:
     BL scanf
 
     LDR r1, =num // Load the adr of num into r1
-   
-    VLDR s0, [r1] // Load the valuer of num into s0
-    vcvt.f64.f32  d5, s0    // Convert num to double 
+    LDR r1, [r1]
+
+
+    VMOV s0, r1 // Load the valuer of num into s0
+    vcvt.f64.f32  d0, s0    // Convert num to double 
 
     LDR r0, =fmt_out
-    VMOV r2, r3, d5 // Store num into r2 and r3 (not sure why r1 and r2 didnt work?)
+    VMOV r1, r2, d0 // Store num into r2 and r3 (not sure why r1 and r2 didnt work?)
     BL printf
 
     LDR lr, [sp, #0]
-    ADD sp, sp, #8
+    ADD sp, sp, #4
     MOV pc, lr
     
 .data
-    prompt: .asciz "Enter a number "
-    fmt_in:  .asciz "%f"                       // Format string for scanf
-    fmt_out: .asciz "You entered: %f\n"        // Format string for printf
-    num:     .float 0.0                       // Variable to store the floating point number
 
+    num: .word 0
+    prompt: .asciz "Enter a number: "
+    fmt_in: .asciz "%f"
+    fmt_out: .asciz "%.2f\n"
 
