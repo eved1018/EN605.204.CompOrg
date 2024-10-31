@@ -2,34 +2,69 @@
 # Program Name: template.s
 # Author: Evan Edelstein
 # Date: 9/19/2020
-# Purpose: This program is template that can be used to start ARM assembly
+# Purpose: A guessing game, the user enters maximum number and must guess a random number from 0->max
 # program using gcc #
 .global main
 .global ishighLow
 .global randFunc
+.global getRemainder
+
+
+
+.text 
+getRemainder:
+    // Push Stack
+    SUB sp, sp, #4
+    STR lr, [sp]
+
+
+    // r0 has random number
+    // r1 is max 
+    
+    CMP r0, r1
+    BLE endRemainder
+
+
+    SubtarctFactor:
+        SUB r0, r0, r1
+        CMP r0, r1
+        BLT endRemainder
+        B SubtarctFactor
+        
+    endRemainder:
+    // pop the stack 
+    LDR lr, [sp]
+    ADD sp, sp , #4
+    MOV pc, lr
+
+// END getRemainder
 
 .text
 	// Purpose: To retrieve a random number from 0..r0
 randFunc:
-	SUB sp, sp, #8
-	STR lr, [sp]
-	STR r5, [sp, #4]
-	// Get the random number, setting the limit using a modulus operation
-    MOV r3, r0
-    MOV r0, #12 // seed
-	BL srand // r0 already has the seed
-	BL rand
-	MOV r4, r0 // Save the random number
-	// Modulus operation
-	MOV r1, #100
-	BL __aeabi_idiv
-	MOV r1, #100
-	MUL r0, r0, r1
-	SUB r0, r4, r0
-	LDR lr, [sp]
-	LDR r4, [sp, #4]
-	ADD sp, sp, #8
-	MOV pc, lr
+
+    // Push Stack
+    SUB sp, sp, #4
+    STR lr, [sp]
+    
+    MOV r6, r1
+
+    MOV r0, #0
+    BL time
+    BL srand
+    BL rand
+
+    MOV r1, r6
+    BL getRemainder
+    // r0 has random number under max
+
+    // pop the stack 
+    LDR lr, [sp]
+    ADD sp, sp , #4
+    MOV pc, lr
+// END randFunc
+
+
 
 .text 
 isHighLow:
@@ -81,9 +116,10 @@ main:
     BL scanf 
 
     LDR r1, =max
-    LDR r0, [r1]
+    LDR r1, [r1]
 
     BL randFunc // r0 is the random number
+    // r0 is our random number that is less than r1 (max)
 
     MOV r5, r0 
 

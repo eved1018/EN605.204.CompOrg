@@ -1,8 +1,9 @@
+
 #
 # Program Name: template.s
 # Author: Evan Edelstein
 # Date: 9/19/2020
-Purpose: Check of a number is prime
+# Purpose: Check of a number is prime
 # program using gcc #
 .global main
 .global checkPrime
@@ -11,58 +12,61 @@ Purpose: Check of a number is prime
 
 .text
 checkPrime:
+    // Logic taken from https://developer.arm.com/documentation/107829/0200/Example--checking-prime-numbers
     // Push Stack
     SUB sp, sp, #4
     STR lr, [sp]
-
-    // fn code
-    // num
-    MOV r4, r0
-    // how many divisors
-    MOV r2, #0
-
     
-    // check if num is less than one
+    MOV r4, r0
+
+    // if it is 1,0 or neg it isnt prime
     CMP r0, #1
-    BLT printNotPrime
-        // gt than 1
-        # initialize the loop,
-        # r1 - counter init to 1
-        # r3 - loop limit: n
+    BLE printNotPrime
 
-        MOV r1, #1
-        mov r3, r0
+    // For all numbers between input and zero check if that number (sentinal ) is a divisior of input_number, if it is
+    // the input number is not prime
 
-        StartPrimeLoop:
-          CMP r3, r1
-          BLE EndPrimeLoop
-              # Loop Block
+    // in python
+//   def is_prime(n):
+//    j = n 
+//    i = n - 1
+//
+//    if n <= 1:
+//        return False
+//
+//    while i > 1:
+//        j = n
+//        while j >= i:
+//            j = j - i
+//        
+//        if j == 0:
+//            return False
+//        
+//        i = i - 1
+//    
+//    return True
+//
 
-              MOV r5, r0
-              MOV r6, r1
-              MOV r7, r3
-              // r0 is num and r1 is loop var
-              // divide num/loopcounter
-              BL __aeabi_idivmod
-              MOV r3, r1
-              
-              MOV r0, r5
-              MOV r1, r6
-              // everything is reset and r3 holds modulo
-          
-              CMP r3, #0
-              // if mod is zero add to div counter
-              ADDEQ r2, r2, #1
-              MOV r3, r7
 
-              # Get next value
-              ADD r1, r1, #1
-              B StartPrimeLoop
-
-          EndPrimeLoop:
-            CMP r2, #2
-            BGT printNotPrime
-                B printPrime
+    SUB r1, r0 , #1
+    startSubLoop:
+        CMP r1, #1
+        BEQ printPrime
+        // else 
+        MOV r2, r0
+    
+    subtractFactor:
+        SUB r2, r2, r1 // input_number = input_number - sentinal
+        CMP r2, r1 // is sentinal a factor of our number
+        BLT checkRemainder
+        B subtractFactor
+    
+    checkRemainder:
+        CMP r2, #0   // If number has a divisor without remainder than it is not prime
+        BEQ printNotPrime
+            // else there is a remainder
+            SUB r1 , r1, #1 // decrement sentinal
+            B startSubLoop
 
     printPrime:
         LDR r0, =isprime
